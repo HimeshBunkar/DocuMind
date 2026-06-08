@@ -1,0 +1,9 @@
+openai==1.84.0
+redis==6.2.0
+sentence-transformers==4.1.0
+chromadb==1.0.12
+pinecone==6.0.2
+pymongo==4.13.0
+langchain==0.3.25
+langchain-community==0.3.24
+langchain-openai==0.3.21

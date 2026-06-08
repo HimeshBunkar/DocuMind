@@ -1,0 +1,19 @@
+services:
+  api:
+    build:
+      context: ./backend
+    environment:
+      APP_ENV: development
+      EMBEDDING_PROVIDER: local
+      VECTOR_STORE: memory
+      LLM_PROVIDER: local
+      REDIS_URL: redis://redis:6379/0
+    ports:
+      - "8000:8000"
+    depends_on:
+      - redis
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
