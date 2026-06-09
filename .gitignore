@@ -1,11 +1,18 @@
-node_modules
-.next
-dist
-build
+# Environment variables
 .env
 .env.local
-.venv
-__pycache__
+.env.production
+.env.development
+
+# Python
+.venv/
+__pycache__/
 *.pyc
-backend/storage
-backend/.pytest_cache
+
+# Node
+node_modules/
+.next/
+
+# OS
+.DS_Store
+Thumbs.db

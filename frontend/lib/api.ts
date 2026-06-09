@@ -10,7 +10,7 @@ import {
   uploadResponseSchema
 } from "@/lib/schemas";
 
-export const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
+export const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8001";
 
 export async function fetchDocuments(): Promise<DocumentMeta[]> {
   const response = await fetch(`${API_URL}/documents`, {
