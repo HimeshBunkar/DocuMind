@@ -76,7 +76,7 @@ class RagService:
 
     async def query(self, question: str, document_ids: list[str], top_k: int, compare: bool = False) -> QueryResponse:
         started = time.perf_counter()
-        query_embedding = (await self.embeddings.embed([question]))[0]
+        query_embedding = (await self.embeddings.embed([question], task_type="RETRIEVAL_QUERY"))[0]
         matches = await self.vectors.search(query_embedding, document_ids, top_k)
         citations = [
             Citation(

@@ -12,7 +12,7 @@ class EmbeddingProvider(ABC):
     name: str
 
     @abstractmethod
-    async def embed(self, texts: list[str]) -> list[list[float]]:
+    async def embed(self, texts: list[str], task_type: str = "RETRIEVAL_DOCUMENT") -> list[list[float]]:
         raise NotImplementedError
 
 
@@ -22,7 +22,7 @@ class LocalEmbeddingProvider(EmbeddingProvider):
     def __init__(self, dimensions: int = 384) -> None:
         self.dimensions = dimensions
 
-    async def embed(self, texts: list[str]) -> list[list[float]]:
+    async def embed(self, texts: list[str], task_type: str = "RETRIEVAL_DOCUMENT") -> list[list[float]]:
         return [self._embed_one(text) for text in texts]
 
     def _embed_one(self, text: str) -> list[float]:
@@ -43,7 +43,7 @@ class OpenAIEmbeddingProvider(EmbeddingProvider):
     def __init__(self, settings: Settings) -> None:
         self.settings = settings
 
-    async def embed(self, texts: list[str]) -> list[list[float]]:
+    async def embed(self, texts: list[str], task_type: str = "RETRIEVAL_DOCUMENT") -> list[list[float]]:
         from openai import AsyncOpenAI
         client = AsyncOpenAI(api_key=self.settings.openai_api_key)
         response = await client.embeddings.create(
@@ -60,7 +60,7 @@ class HuggingFaceEmbeddingProvider(EmbeddingProvider):
         from sentence_transformers import SentenceTransformer
         self.model = SentenceTransformer(settings.huggingface_embedding_model)
 
-    async def embed(self, texts: list[str]) -> list[list[float]]:
+    async def embed(self, texts: list[str], task_type: str = "RETRIEVAL_DOCUMENT") -> list[list[float]]:
         vectors = self.model.encode(texts, normalize_embeddings=True)
         return [v.tolist() for v in vectors]
 
@@ -69,29 +69,29 @@ class GeminiEmbeddingProvider(EmbeddingProvider):
     name = "gemini"
 
     def __init__(self, settings: Settings) -> None:
-        import google.generativeai as genai
-        genai.configure(api_key=settings.gemini_api_key)
+        from google import genai
+        self.client = genai.Client(api_key=settings.gemini_api_key)
+        # Strip models/ prefix — new SDK doesn't want it
         model = settings.gemini_embedding_model
-        # Always ensure models/ prefix
-        if not model.startswith("models/") and not model.startswith("tunedModels/"):
-            model = f"models/{model}"
-        self.model = model
+        if model.startswith("models/"):
+            model = model[len("models/"):]
+        self.model = model  # e.g. "gemini-embedding-001"
 
-    async def embed(self, texts: list[str]) -> list[list[float]]:
+    async def embed(self, texts: list[str], task_type: str = "RETRIEVAL_DOCUMENT") -> list[list[float]]:
         import asyncio
-        import google.generativeai as genai
+        from google.genai import types
 
         loop = asyncio.get_event_loop()
 
         def _embed_batch() -> list[list[float]]:
             results = []
             for text in texts:
-                response = genai.embed_content(
+                response = self.client.models.embed_content(
                     model=self.model,
-                    content=text,
-                    task_type="RETRIEVAL_DOCUMENT"
+                    contents=text,
+                    config=types.EmbedContentConfig(task_type=task_type)
                 )
-                results.append(response["embedding"])
+                results.append(response.embeddings[0].values)
             return results
 
         return await loop.run_in_executor(None, _embed_batch)

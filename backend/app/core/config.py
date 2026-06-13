@@ -3,7 +3,6 @@ from typing import Literal
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-# Always points to backend/.env regardless of where uvicorn is launched from
 ENV_FILE = Path(__file__).resolve().parents[2] / ".env"
 
 
@@ -13,7 +12,7 @@ class Settings(BaseSettings):
     cors_origins: list[str] = ["http://localhost:3000", "http://127.0.0.1:3000"]
 
     embedding_provider: Literal["local", "openai", "huggingface", "gemini"] = "gemini"
-    llm_provider: Literal["local", "openai", "huggingface", "gemini"] = "gemini"
+    llm_provider: Literal["local", "openai", "gemini", "groq"] = "groq"
     vector_store: Literal["memory", "chroma", "pinecone"] = "memory"
 
     # OpenAI (optional)
@@ -24,10 +23,14 @@ class Settings(BaseSettings):
     # HuggingFace (optional)
     huggingface_embedding_model: str = "sentence-transformers/all-MiniLM-L6-v2"
 
-    # Google Gemini (free tier)
+    # Google Gemini (embeddings)
     gemini_api_key: str | None = None
-    gemini_chat_model: str = "gemini-1.5-flash"
-    gemini_embedding_model: str = "models/text-embedding-004"
+    gemini_chat_model: str = "gemini-2.0-flash"
+    gemini_embedding_model: str = "gemini-embedding-001"
+
+    # Groq (free LLM)
+    groq_api_key: str | None = None
+    groq_chat_model: str = "llama-3.3-70b-versatile"
 
     # Optional services
     pinecone_api_key: str | None = None
