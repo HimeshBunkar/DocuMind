@@ -1,6 +1,7 @@
 from pathlib import Path
 from typing import Literal
 
+from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 ENV_FILE = Path(__file__).resolve().parents[2] / ".env"
@@ -10,6 +11,13 @@ class Settings(BaseSettings):
     app_name: str = "DocuMind API"
     app_env: str = "development"
     cors_origins: list[str] = ["http://localhost:3000", "http://127.0.0.1:3000"]
+
+    @field_validator("cors_origins", mode="before")
+    @classmethod
+    def parse_cors_origins(cls, v):
+        if isinstance(v, str):
+            return [origin.strip() for origin in v.split(",")]
+        return v
 
     embedding_provider: Literal["local", "openai", "huggingface", "gemini"] = "gemini"
     llm_provider: Literal["local", "openai", "gemini", "groq"] = "groq"
