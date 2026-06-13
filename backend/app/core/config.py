@@ -1,7 +1,6 @@
 from pathlib import Path
 from typing import Literal
 
-from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 ENV_FILE = Path(__file__).resolve().parents[2] / ".env"
@@ -10,37 +9,28 @@ ENV_FILE = Path(__file__).resolve().parents[2] / ".env"
 class Settings(BaseSettings):
     app_name: str = "DocuMind API"
     app_env: str = "development"
-    cors_origins: list[str] = ["http://localhost:3000", "http://127.0.0.1:3000"]
+    cors_origins: str = "http://localhost:3000,http://127.0.0.1:3000"
 
-    @field_validator("cors_origins", mode="before")
-    @classmethod
-    def parse_cors_origins(cls, v):
-        if isinstance(v, str):
-            return [origin.strip() for origin in v.split(",")]
-        return v
+    def get_cors_origins(self) -> list[str]:
+        return [origin.strip() for origin in self.cors_origins.split(",")]
 
     embedding_provider: Literal["local", "openai", "huggingface", "gemini"] = "gemini"
     llm_provider: Literal["local", "openai", "gemini", "groq"] = "groq"
     vector_store: Literal["memory", "chroma", "pinecone"] = "memory"
 
-    # OpenAI (optional)
     openai_api_key: str | None = None
     openai_embedding_model: str = "text-embedding-3-small"
     openai_chat_model: str = "gpt-4o"
 
-    # HuggingFace (optional)
     huggingface_embedding_model: str = "sentence-transformers/all-MiniLM-L6-v2"
 
-    # Google Gemini (embeddings)
     gemini_api_key: str | None = None
     gemini_chat_model: str = "gemini-2.0-flash"
     gemini_embedding_model: str = "gemini-embedding-001"
 
-    # Groq (free LLM)
     groq_api_key: str | None = None
     groq_chat_model: str = "llama-3.3-70b-versatile"
 
-    # Optional services
     pinecone_api_key: str | None = None
     pinecone_index: str | None = None
     redis_url: str | None = None
