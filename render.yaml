@@ -3,24 +3,36 @@ services:
     name: documind-api
     runtime: docker
     rootDir: backend
-    plan: starter
+    plan: free
     healthCheckPath: /health
     envVars:
       - key: APP_ENV
         value: production
       - key: EMBEDDING_PROVIDER
-        sync: false
-      - key: VECTOR_STORE
-        sync: false
+        value: gemini
       - key: LLM_PROVIDER
+        value: groq
+      - key: VECTOR_STORE
+        value: memory
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: GEMINI_CHAT_MODEL
+        value: gemini-2.0-flash
+      - key: GEMINI_EMBEDDING_MODEL
+        value: gemini-embedding-001
+      - key: GROQ_API_KEY
+        sync: false
+      - key: GROQ_CHAT_MODEL
+        value: llama-3.3-70b-versatile
+      - key: MONGODB_URI
+        sync: false
+      - key: REDIS_URL
+        sync: false
+      - key: CORS_ORIGINS
         sync: false
       - key: OPENAI_API_KEY
         sync: false
       - key: PINECONE_API_KEY
         sync: false
       - key: PINECONE_INDEX
-        sync: false
-      - key: REDIS_URL
-        sync: false
-      - key: MONGODB_URI
         sync: false

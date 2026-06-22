@@ -1,6 +1,6 @@
-@"
 backend/.env
 backend/venv/
+backend/.venv/
 backend/storage/
 frontend/.env.local
 frontend/node_modules/
@@ -10,4 +10,3 @@ __pycache__/
 *.pyo
 .DS_Store
 backend/test_*.py
-"@ | Out-File -FilePath .gitignore -Encoding utf8
